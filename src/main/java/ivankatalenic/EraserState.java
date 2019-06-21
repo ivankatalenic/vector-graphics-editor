@@ -1,39 +1,46 @@
 package ivankatalenic;
 
-import javafx.scene.input.KeyCode;
+import java.util.ArrayList;
+import java.util.List;
 
-public class AddShapeState implements State {
+public class EraserState implements State {
 
 	private GUI gui;
-	private GraphicalObject prototype;
+	private List<GraphicalObject> deleteList;
 
-	public AddShapeState(GUI gui, GraphicalObject prototype) {
-		this.prototype = prototype;
+	public EraserState(GUI gui) {
 		this.gui = gui;
+		deleteList = new ArrayList<>();
 	}
 
 	@Override
 	public void mouseDown(Point mousePoint, boolean shiftDown, boolean ctrlDown) {
-		GraphicalObject o = prototype.duplicate();
-		o.translate(mousePoint);
-		gui.dm.addGraphicalObject(o);
+
 	}
 
 	@Override
 	public void mouseUp(Point mousePoint, boolean shiftDown, boolean ctrlDown) {
-
+		for (GraphicalObject o : deleteList) {
+			gui.dm.removeGraphicalObject(o);
+		}
+		gui.currentState = gui.idleState;
 	}
 
 	@Override
 	public void mouseDragged(Point mousePoint) {
-
+		gui.renderer.drawLine(mousePoint, mousePoint);
+		for (GraphicalObject o : gui.dm.list()) {
+			if (o.selectionDistance(mousePoint) < 1e-3) {
+				if (!deleteList.contains(o)) {
+					deleteList.add(o);
+				}
+			}
+		}
 	}
 
 	@Override
 	public void keyPressed(int keyCode) {
-		if (keyCode == KeyCode.ESCAPE.getCode()) {
-			gui.currentState = gui.idleState;
-		}
+
 	}
 
 	@Override
@@ -55,5 +62,4 @@ public class AddShapeState implements State {
 	public void onLeaving() {
 
 	}
-
 }
